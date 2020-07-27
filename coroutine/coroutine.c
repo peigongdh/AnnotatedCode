@@ -7,7 +7,9 @@
 #include <stdint.h>
 
 #if __APPLE__ && __MACH__
+
 #include <sys/ucontext.h>
+
 #else
 
 #include <ucontext.h>
@@ -190,19 +192,20 @@ coroutine_resume(struct schedule *S, int id) {
     int status = C->status;
     switch (status) {
         case COROUTINE_READY:
-            //初始化ucontext_t结构体,将当前的上下文放到C->ctx里面
+            // 初始化ucontext_t结构体,将当前的上下文放到C->ctx里面
             getcontext(&C->ctx);
             // 将当前协程的运行时栈的栈顶设置为S->stack
             // 每个协程都这么设置，这就是所谓的共享栈。（注意，这里是栈顶）
             C->ctx.uc_stack.ss_sp = S->stack;
             C->ctx.uc_stack.ss_size = STACK_SIZE;
-            C->ctx.uc_link = &S->main; // 如果协程执行完，将切换到主协程中执行
+            // 如果协程执行完，将切换到主协程中执行
+            C->ctx.uc_link = &S->main;
             S->running = id;
             C->status = COROUTINE_RUNNING;
 
             // 设置执行C->ctx函数, 并将S作为参数传进去
             uintptr_t ptr = (uintptr_t) S;
-            makecontext(&C->ctx, (void (*)(void)) mainfunc, 2, (uint32_t) ptr, (uint32_t)(ptr >> 32));
+            makecontext(&C->ctx, (void (*)(void)) mainfunc, 2, (uint32_t) ptr, (uint32_t) (ptr >> 32));
 
             // 将当前的上下文放入S->main中，并将C->ctx的上下文替换到当前上下文
             swapcontext(&S->main, &C->ctx);

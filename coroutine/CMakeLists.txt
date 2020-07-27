@@ -1,0 +1,6 @@
+project(coroutine)
+set(SRC_LIST main.c coroutine.c)
+message(STATUS ${SRC_LIST})
+message(STATUS "This is Binary dir" ${PROJECT_BINARY_DIR})
+message(STATUS "This is Source dir" ${PROJECT_SOURCE_DIR})
+add_executable(coroutine ${SRC_LIST})
