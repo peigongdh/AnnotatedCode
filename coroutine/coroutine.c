@@ -237,6 +237,10 @@ _save_stack(struct coroutine *C, char *top) {
     // top - &dummy 即整个栈的容量
     char dummy = 0;
     assert(top - &dummy <= STACK_SIZE);
+    printf("C->cap: %d\n", (int) C->cap);
+    printf("C->size: %d\n", (int) C->size);
+    printf("C->stack: %d\n", (int) C->stack);
+    printf("top - &dummy: %d\n", (int) (top - &dummy));
     if (C->cap < top - &dummy) {
         free(C->stack);
         C->cap = top - &dummy;
